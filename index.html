@@ -9,12 +9,20 @@
 </head>
 <body>
     <div class="player">
-        <video src="https://player.vimeo.com/external/194837908.sd.mp4?s=c350076905b78c67f74d7ee39fdb4fef01d12420&profile_id=164"></video>
+
+        <video class="outer" src="https://player.vimeo.com/external/194837908.sd.mp4?s=c350076905b78c67f74d7ee39fdb4fef01d12420&profile_id=164">
+
+        </video> <!--- https://player.vimeo.com/external/194837908.sd.mp4?s=c350076905b78c67f74d7ee39fdb4fef01d12420&profile_id=164 -->
         
         <div class="volume_dialog"></div>
         
         <div class="player_controls">
-            
+
+            <div class="video_preview">
+                <video class="inner" src="https://player.vimeo.com/external/194837908.sd.mp4?s=c350076905b78c67f74d7ee39fdb4fef01d12420&profile_id=164"></video>
+                <p></p>
+            </div>
+
             <div class="progress">
                 <div class="progress_fill"></div>
             </div>
@@ -28,7 +36,13 @@
             <button data-skip="25" class="player_button skip">>>25</button>
             <button class="player_button fullscreen">「」</button>
         </div>
+
+        
     </div>
+    
+    
+        <input type="file" id="file_input"/> 
+    
     <script src="script.js"></script>
 </body>
 </html>

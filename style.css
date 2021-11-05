@@ -11,6 +11,8 @@ body{
     display: flex;
     justify-content: center;
     align-items: center;
+    flex-direction: column;
+    gap: 3vh;
 }
 
 .player{
@@ -23,11 +25,38 @@ body{
     max-width: 750px;
 }
 
-video{
+.outer{
     position: relative;
     display: flex;
     flex: 1;
 }
+
+.video_preview{
+    display: flex; 
+    flex-direction: column;
+}
+
+.inner{
+    width: 15vh;
+    height: 15vh;
+    display: none;
+}
+  
+  .player_controls .video_preview p{
+      margin: 0;
+      font-size: .5rem;
+      color: white;
+      max-width: 15vh;
+      text-align: center;
+      display: none;
+  }
+
+  #file_input{
+    border: 1px solid  #fff;
+    background-color: rgba(208, 223, 218, 0.027);
+    box-shadow: 0 0 5px 10px rgba(0,0,0,0.05);
+    text-align: center;
+  }
 
 .player_controls{
     position: absolute;
@@ -35,7 +64,7 @@ video{
     width: 100%;
     display: flex;
     flex-wrap: wrap;
-    /* transform: translateY(100%) translateY(-5px); */
+    transform: translateY(100%) translateY(-1.5vh);
     transition: all 0.3s;
     /* prevent user select */
     -webkit-touch-callout: none; /* iOS Safari */
@@ -58,7 +87,7 @@ video{
     flex: 10;
     flex-basis:100% ;
     background: rgba(0,0,0,0.5);
-    height: 5px;
+    height: 1.5vh;
     transition: height 0.3s;
 }
 
@@ -80,12 +109,12 @@ video{
 }
 
 
-.player:hover .player_controls{
+.player_controls:hover{
     transform: translateY(0);
 }
 
-.player:hover .progress{
-    height: 15px;
+.player_controls:hover .progress{
+    height: 2.5vh;
 }
 
 input[type="range"]{
