@@ -120,21 +120,21 @@ function progressTimeChanged() {
   progressFill.style.flexBasis = `${timePercent}%`;
 }
 
-const innerVideoWidth =innerVideo.offsetWidth/2;
-const previewTimeWidth = previewTime.offsetWidth/2;
 function progressHoverPreview(e) {
+  const innerVideoWidth =innerVideo.offsetWidth/2;
+  const previewTimeWidth = previewTime.offsetWidth/2;
   const evtOffsetX = e.offsetX;
   const progressWidth = progress.offsetWidth;
 
   let prePercent = evtOffsetX / progressWidth;
   let preTime = video.duration * prePercent;
 
-  let preHour = (Math.floor(preTime / 3600) || "" )+ ":";
-  let preMin = Math.floor((preTime % 3600) / 60) || "0";
-  let preSec = Math.floor((preTime % 3600) % 60);
+  let previewHour = (Math.floor(preTime / 3600) || "" )+ ":";
+  let previewMin = Math.floor((preTime % 3600) / 60) || "0";
+  let previewSec = Math.floor((preTime % 3600) % 60);
 
-  preHour = preHour === ":" ? "" : preHour;
-  preSec = preSec < 10 ? `0${preSec}` : preSec;
+  previewHour = previewHour === ":" ? "" : previewHour;
+  previewSec = previewSec < 10 ? `0${previewSec}` : previewSec;
 
   let innerVideoML = (evtOffsetX-innerVideoWidth) > 0 ? (evtOffsetX-innerVideoWidth): 0;
   innerVideoML = (evtOffsetX+innerVideoWidth) > progressWidth ? (progressWidth-2*innerVideoWidth) : innerVideoML;
@@ -146,7 +146,7 @@ function progressHoverPreview(e) {
   previewTime.style.marginLeft = `${previewTimeML}px`; //e.offsetX-previewTimeWidth
 
   innerVideo.currentTime = preTime;
-  previewTime.textContent = `${preHour}${preMin}:${preSec}`;
+  previewTime.textContent = `${previewHour}${previewMin}:${previewSec}`;
 
   innerVideo.style.display = "block";
   previewTime.style.display = "block";
