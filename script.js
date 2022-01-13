@@ -14,16 +14,32 @@ const outer_speedIcon = document.querySelector(".speed_icon");
 const inner_volumeIcon = document.querySelector(".sound");
 const selectedFile = document.getElementById("file_input");
 const previewTime = document.querySelector(".player_controls .video_preview p");
+const mobilePreviewTime = document.querySelector(".mobile_time>h4");
+const defaultVideoText=document.querySelector(".default_video");
 
 //accessing selected files
 const inputElement = document.getElementById("file_input");
+const inputFileArea = document.querySelector('.input_file');
+const inputAreaText = document.querySelector('.input_file>p');
 
-/*set functions*/
+const defaultUrl = 'https://player.vimeo.com/external/194837908.sd.mp4?s=c350076905b78c67f74d7ee39fdb4fef01d12420&profile_id=164';
+
+function checkDefaultUrl(){
+  if(video.src === defaultUrl){
+  defaultVideoText.style.display = "block";
+  return;
+  }
+  defaultVideoText.style.display = "none";
+}
 
 //Handle toggle
 function togglePlay() {
   const method = video.paused ? "play" : "pause";
+  video.setAttribute('webkit-playsinline',true);
+  video.setAttribute('playsinline',true);
   video[method]();
+
+  toggleIcon();
 }
 
 function toggleIcon() {
@@ -116,26 +132,30 @@ function progressBarChanged(e) {
 }
 
 function progressTimeChanged() {
-  const timePercent = (video.currentTime / video.duration) * 100;
-  progressFill.style.flexBasis = `${timePercent}%`;
+  const progessPercent = (video.currentTime / video.duration) * 100;
+  progressFill.style.flexBasis = `${progessPercent}%`;
+  
+  // console.log(video.currentTime);
+  let {previewHour,previewMin,previewSec} = getPreTime(video.currentTime);
+  mobilePreviewTime.textContent = `${previewHour}${previewMin}:${previewSec}`;
 }
 
-function progressHoverPreview(e) {
-  const innerVideoWidth =innerVideo.offsetWidth/2;
-  const previewTimeWidth = previewTime.offsetWidth/2;
-  const evtOffsetX = e.offsetX;
-  const progressWidth = progress.offsetWidth;
+function getPreTime(preTime){
+  // let preTime = (evtOffsetX/progressWidth)*video.duration;
+  return timeUnitConvert(preTime);
+}
 
-  let prePercent = evtOffsetX / progressWidth;
-  let preTime = video.duration * prePercent;
-
+function timeUnitConvert(preTime){
   let previewHour = (Math.floor(preTime / 3600) || "" )+ ":";
   let previewMin = Math.floor((preTime % 3600) / 60) || "0";
   let previewSec = Math.floor((preTime % 3600) % 60);
 
   previewHour = previewHour === ":" ? "" : previewHour;
   previewSec = previewSec < 10 ? `0${previewSec}` : previewSec;
+  return {previewHour,previewMin,previewSec}
+}
 
+function setPreviewMl({innerVideoWidth,previewTimeWidth,evtOffsetX,progressWidth}){
   let innerVideoML = (evtOffsetX-innerVideoWidth) > 0 ? (evtOffsetX-innerVideoWidth): 0;
   innerVideoML = (evtOffsetX+innerVideoWidth) > progressWidth ? (progressWidth-2*innerVideoWidth) : innerVideoML;
 
@@ -144,14 +164,30 @@ function progressHoverPreview(e) {
 
   innerVideo.style.marginLeft =  `${innerVideoML}px`; //e.offsetX-innerVideoWidth
   previewTime.style.marginLeft = `${previewTimeML}px`; //e.offsetX-previewTimeWidth
+}
 
+function progressHoverPreview(e) {
+  e.preventDefault();
+
+  const evtOffsetX = e.offsetX ||e.touches[0].clientX;
+  const progressWidth = progress.offsetWidth;
+
+  let preTime = (evtOffsetX/progressWidth)*video.duration;
+  let {previewHour,previewMin,previewSec} = getPreTime(preTime);
+  mobilePreviewTime.textContent = `${previewHour}${previewMin}:${previewSec}`;
   innerVideo.currentTime = preTime;
+
+  if(e.type === "touchmove") return;
+  
   previewTime.textContent = `${previewHour}${previewMin}:${previewSec}`;
+  
+  const innerVideoWidth =innerVideo.offsetWidth/2;
+  const previewTimeWidth = previewTime.offsetWidth/2;
+
+  setPreviewMl({innerVideoWidth,previewTimeWidth,evtOffsetX,progressWidth});
 
   innerVideo.style.display = "block";
   previewTime.style.display = "block";
-
-  
 }
 
 function progressHoverEnd(){
@@ -223,13 +259,33 @@ function keyPress(e) {
   }
 }
 
+function getHtmlWidthAndHeight() {
+  const htmlWidth =
+    (window.innerWidth ||
+      document.documentElement.clientWidth ||
+      document.body.clientWidth) / 100;
+
+  const htmlHeight =
+    (window.innerHeight ||
+      document.documentElement.clientHeight ||
+      document.body.clientHeight) / 100;
+
+  return { htmlWidth, htmlHeight };
+}
+
 /*add EventListener*/
 
 // toggle play
 toggle.addEventListener("click", togglePlay);
-toggle.addEventListener("click", toggleIcon);
+// toggle.addEventListener("click", toggleIcon);
+
 video.addEventListener("click", togglePlay);
-video.addEventListener("click", toggleIcon);
+video.addEventListener("click", mobileFullscreen);
+
+function mobileFullscreen(){
+  video.removeAttribute('webkit-playsinline');
+  video.removeAttribute('playsinline');
+}
 
 //skip buttons
 skipButtons.forEach((skipButton) =>
@@ -246,21 +302,35 @@ volumeHint.addEventListener("transitionend", transitionEnd);
 
 //progress
 let isMouseDown = false;
-progress.addEventListener("click", progressPressed);
-progress.addEventListener("click", progressBarChanged);
+// progress.addEventListener("click", progressPressed);
+// progress.addEventListener("click", progressBarChanged);
+progress.addEventListener("pointerdown", progressPressed);
+progress.addEventListener("pointerdown", progressBarChanged);
 video.addEventListener("timeupdate", progressTimeChanged);
-progress.addEventListener("mousedown", () => {
+// progress.addEventListener("mousedown", () => {
+//   isMouseDown = true;
+// });
+progress.addEventListener("pointerdown", () => {
   isMouseDown = true;
 });
-progress.addEventListener("mousemove", (e) => {
+// progress.addEventListener("mousemove", (e) => {
+//   isMouseDown && progressPressed(e);
+// });
+progress.addEventListener("pointermove", (e) => {
   isMouseDown && progressPressed(e);
 });
-window.addEventListener("mouseup", () => {
+
+// window.addEventListener("mouseup", () => {
+//   isMouseDown = false;
+// });
+window.addEventListener("pointerup", () => {
   isMouseDown = false;
 });
 
 progress.addEventListener("mousemove", progressHoverPreview);
+progress.addEventListener("touchmove", progressHoverPreview);
 progress.addEventListener("mouseleave",progressHoverEnd);
+// progress.addEventListener("pointerleave",progressHoverEnd);
 
 //Icons press
 outer_volumeIcon.addEventListener("click", pressIcon_volume);
@@ -269,11 +339,29 @@ outer_volumeIcon.addEventListener("click", pressIcon_volume);
 window.addEventListener("keydown", keyPress);
 
 //fileInput
-inputElement.addEventListener("change", handleFiles, false);
+checkDefaultUrl();
+video.currentTime = 3;
+
+inputElement.addEventListener("change", handleFiles);
 function handleFiles() {
   const fileList = this.files; /* now you can work with the file list */
   let URL = window.URL || window.webkitURL;
   let fileURL = URL.createObjectURL(fileList[0]);
   video.src = fileURL;
   innerVideo.src = fileURL;
+
+  inputAreaText.textContent = '已匯入影片';
+  inputFileArea.style.backgroundColor = '#b19af8';
+  
+  checkDefaultUrl();
+
+  const nowSpeed = inputs[1].value; 
+  video['playbackRate'] = nowSpeed;
+
+  const nowVolume = inputs[0].value; 
+  video['volume'] = nowVolume;
+
+  progressFill.style.flexBasis = 0;
+  toggleIcon();
 }
+
